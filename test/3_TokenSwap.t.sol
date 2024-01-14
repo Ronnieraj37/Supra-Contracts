@@ -76,4 +76,51 @@ contract TokenSwapTest is Test {
         vm.expectRevert("Owner Rights Needed");
         tokenSwap.setExchangeRate(4);
     }
+
+    function testSwapAToBInsufficientBalance() public {
+        tokenA.transfer(address(tokenSwap), 5);
+
+        vm.expectRevert("Insufficient balance of Token A");
+        tokenSwap.swapAToB(10);
+    }
+
+    function testSwapBToAInsufficientBalance() public {
+        tokenB.transfer(address(tokenSwap), 5);
+
+        vm.expectRevert("Insufficient balance of Token B");
+        tokenSwap.swapBToA(10);
+    }
+
+    function testSwapAToBZeroAmount() public {
+        vm.expectRevert("Amount must be greater than zero");
+        tokenSwap.swapAToB(0);
+    }
+
+    function testSwapBToAZeroAmount() public {
+        vm.expectRevert("Amount must be greater than zero");
+        tokenSwap.swapBToA(0);
+    }
+
+    function testSetExchangeRateZero() public {
+        vm.expectRevert("Exchange rate must be greater than zero");
+        tokenSwap.setExchangeRate(0);
+    }
+
+    function testSwapAToBEvent() public {
+        tokenA.transfer(address(tokenSwap), 10);
+
+        tokenSwap.swapAToB(5);
+    }
+
+    function testSwapBToAEvent() public {
+        tokenB.transfer(address(tokenSwap), 10);
+
+        tokenSwap.swapBToA(5);
+    }
+
+    function testSetExchangeRateNonOwnerEvent() public {
+        vm.prank(user1);
+        vm.expectRevert("Owner Rights Needed");
+        tokenSwap.setExchangeRate(4);
+    }
 }

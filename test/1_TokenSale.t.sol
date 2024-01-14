@@ -67,4 +67,72 @@ contract TokenSaleTest is Test {
         tokenSale.closePublicSale();
         assert(tokenSale.publicSaleClosed());
     }
+
+    function testPresaleContributeAfterClosed() public {
+        tokenSale.closePresale();
+        vm.expectRevert(bytes("Presale is closed"));
+        tokenSale.contributeToPresale{value: 5}();
+    }
+
+    function testPublicSaleContributeAfterClosed() public {
+        tokenSale.closePublicSale();
+        vm.expectRevert(bytes("Public sale is closed"));
+        tokenSale.contributeToPublicSale{value: 10 wei}();
+    }
+
+    function testPresaleRefundAfterClosed() public {
+        tokenSale.closePresale();
+        vm.expectRevert(bytes("No refund available"));
+        tokenSale.claimRefund();
+    }
+
+    function testPublicSaleRefundAfterClosed() public {
+        tokenSale.closePublicSale();
+        vm.expectRevert(bytes("No refund available"));
+        tokenSale.claimRefund();
+    }
+
+    function testPresaleCloseTwice() public {
+        tokenSale.closePresale();
+        vm.expectRevert(bytes("Presale already closed"));
+        tokenSale.closePresale();
+    }
+
+    function testPublicSaleCloseTwice() public {
+        tokenSale.closePublicSale();
+        vm.expectRevert(bytes("Public sale already closed"));
+        tokenSale.closePublicSale();
+    }
+
+    function testDistributeTokensNotOwner() public {
+        vm.prank(contributor1);
+        vm.expectRevert(bytes("Owner Rights Needed"));
+        tokenSale.distributeTokens(contributor1, 1000);
+    }
+
+    function testDistributeTokensZeroAmount() public {
+        vm.expectRevert(bytes("Invalid token amount"));
+        tokenSale.distributeTokens(owner, 0);
+    }
+
+    function testInvalidTokenAmount() public {
+        vm.expectRevert(bytes("Invalid token amount"));
+        tokenSale.distributeTokens(owner, 0);
+    }
+
+    function testPresaleClosedEvent() public {
+        tokenSale.closePresale();
+        assertTrue(tokenSale.presaleClosed());
+    }
+
+    function testPublicSaleClosedEvent() public {
+        tokenSale.closePublicSale();
+        assertTrue(tokenSale.publicSaleClosed());
+    }
+
+    function testPresaleContributionsAfterClosed() public {
+        tokenSale.closePresale();
+        vm.expectRevert(bytes("Presale is closed"));
+        tokenSale.contributeToPresale{value: 5}();
+    }
 }
